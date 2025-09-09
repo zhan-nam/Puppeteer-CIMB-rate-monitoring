@@ -1,7 +1,8 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
-const MIN_RATE = 3.3000;
-const MAX_RATE = 3.3200;
+const MIN_RATE = 3.2800;
+const MAX_RATE = 3.2900;
 const COMBINE_TOTAL_MID = 10;
 
 let stack = 0.0;
@@ -14,11 +15,13 @@ var prices = [];
     const MINUTE = SECOND * 60;
     const link = 'https://www.cimbclicks.com.sg/sgd-to-myr';
 
-    // const browser = await puppeteer.launch({ headless: 'new' });
-    const browser = await puppeteer.launch({ headless: false });
+    puppeteer.use( StealthPlugin() );
+
+    const browser = await puppeteer.launch({ headless: "new" });
+    // const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
-    await page.setViewport({ width: 0, height: 0 });
+    // await page.setViewport({ width: 0, height: 0 });
 
     try {
         await page.goto(link);
@@ -36,7 +39,9 @@ var prices = [];
             }
 
             await page.reload();
-            await page.waitForTimeout(MINUTE * 1.5);
+            await new Promise( (resolve) => {
+                setTimeout(resolve, MINUTE * 1.5);
+            });
         }
     } catch (error) {
         console.error('An unexpected error occurred:', error);
