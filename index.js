@@ -1,14 +1,16 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-
-const MIN_RATE = 3.2800;
-const MAX_RATE = 3.2900;
-const COMBINE_TOTAL_MID = 10;
+import fs from 'node:fs/promises';
 
 let stack = 0.0;
 let count = 0;
 let previous = null;
 var prices = [];
+
+let MIN_RATE = 0;
+let MAX_RATE = 0;
+let COMBINE_TOTAL_MID = 0;
+
 
 (async () => {
     const SECOND = 1000;
@@ -22,6 +24,13 @@ var prices = [];
     const page = await browser.newPage();
 
     // await page.setViewport({ width: 0, height: 0 });
+
+    let setting = await readSetting();
+    setting = JSON.parse(setting);
+    
+    MIN_RATE = setting["minimum_rate"];
+    MAX_RATE = setting["maximum_rate"];
+    COMBINE_TOTAL_MID = setting["combine_to_find_mid"];
 
     try {
         await page.goto(link);
@@ -49,6 +58,14 @@ var prices = [];
         await browser.close();
     }
 })();
+
+const readSetting = async () => {
+    try {
+        return await fs.readFile('./store/setting.json', 'utf-8');
+    } catch (error) {
+        return error;
+    }
+}
 
 const conlog = async (rateStr) => {
     const temperatures = [ 10, 40, 41, 42, 43, 44, 45 ]; // cold to hot
